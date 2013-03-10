@@ -6,11 +6,11 @@ import java.net.Socket;
 
 public interface MITMSocketFactory
 {
-    ServerSocket createServerSocket(String localHost, int localPort,
-				    int timeout)
-	throws IOException;
+	ServerSocket createServerSocket(String localHost, int localPort,
+			int timeout)
+					throws IOException;
 
-    Socket createClientSocket(String remoteHost, int remotePort)
-	throws IOException;
+	Socket createClientSocket(String remoteHost, int remotePort)
+			throws IOException;
 }
 

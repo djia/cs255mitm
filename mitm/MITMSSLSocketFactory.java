@@ -42,78 +42,78 @@ import javax.net.ssl.X509TrustManager;
  */
 public final class MITMSSLSocketFactory implements MITMSocketFactory
 {
-    final ServerSocketFactory m_serverSocketFactory;
-    final SocketFactory m_clientSocketFactory;
-    final SSLContext m_sslContext;
+	final ServerSocketFactory m_serverSocketFactory;
+	final SocketFactory m_clientSocketFactory;
+	final SSLContext m_sslContext;
 
-    public KeyStore ks = null;
+	public KeyStore ks = null;
 
-    /*
-     *
-     * We can't install our own TrustManagerFactory without messing
-     * with the security properties file. Hence we create our own
-     * SSLContext and initialise it. Passing null as the keystore
-     * parameter to SSLContext.init() results in a empty keystore
-     * being used, as does passing the key manager array obtain from
-     * keyManagerFactory.getInstance().getKeyManagers(). To pick up
-     * the "default" keystore system properties, we have to read them
-     * explicitly. UGLY, but necessary so we understand the expected
-     * properties.
-     *
-     */
+	/*
+	 *
+	 * We can't install our own TrustManagerFactory without messing
+	 * with the security properties file. Hence we create our own
+	 * SSLContext and initialise it. Passing null as the keystore
+	 * parameter to SSLContext.init() results in a empty keystore
+	 * being used, as does passing the key manager array obtain from
+	 * keyManagerFactory.getInstance().getKeyManagers(). To pick up
+	 * the "default" keystore system properties, we have to read them
+	 * explicitly. UGLY, but necessary so we understand the expected
+	 * properties.
+	 *
+	 */
 
-    /**
-     * This constructor will create an SSL server socket factory
-     * that is initialized with a fixed CA certificate
-     */
-    public MITMSSLSocketFactory()
-	throws IOException,GeneralSecurityException
-    {
-	m_sslContext = SSLContext.getInstance("SSL");
+	/**
+	 * This constructor will create an SSL server socket factory
+	 * that is initialized with a fixed CA certificate
+	 */
+	public MITMSSLSocketFactory()
+			throws IOException,GeneralSecurityException
+			{
+		m_sslContext = SSLContext.getInstance("SSL");
 
-	final KeyManagerFactory keyManagerFactory =
-	    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		final KeyManagerFactory keyManagerFactory =
+				KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
-	final String keyStoreFile = System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
-	final char[] keyStorePassword = System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "").toCharArray();
-	final String keyStoreType = System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
+		final String keyStoreFile = System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
+		final char[] keyStorePassword = System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "").toCharArray();
+		final String keyStoreType = System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
 
-	final KeyStore keyStore;
-	
-	if (keyStoreFile != null) {
-	    keyStore = KeyStore.getInstance(keyStoreType);
-	    keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+		final KeyStore keyStore;
 
-	    this.ks = keyStore;
-	} else {
-	    keyStore = null;
-	}
+		if (keyStoreFile != null) {
+			keyStore = KeyStore.getInstance(keyStoreType);
+			keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
 
-	keyManagerFactory.init(keyStore, keyStorePassword);
+			this.ks = keyStore;
+		} else {
+			keyStore = null;
+		}
 
-	m_sslContext.init(keyManagerFactory.getKeyManagers(),
-			  new TrustManager[] { new TrustEveryone() },
-			  null);
+		keyManagerFactory.init(keyStore, keyStorePassword);
 
-	m_clientSocketFactory = m_sslContext.getSocketFactory();
-	m_serverSocketFactory = m_sslContext.getServerSocketFactory(); 
-    }
+		m_sslContext.init(keyManagerFactory.getKeyManagers(),
+				new TrustManager[] { new TrustEveryone() },
+				null);
 
-    /**
-     * This constructor will create an SSL server socket factory
-     * that is initialized with a dynamically generated server certificate
-     * that contains the specified Distinguished Name.
-     */
-    public MITMSSLSocketFactory(Principal serverDN, BigInteger serialNumber)
-	throws IOException,GeneralSecurityException, Exception
-    {
-	this();
-        // TODO(cs255): replace this with code to generate a new (forged) server certificate with a DN of serverDN
-        //   and a serial number of serialNumber.
+		m_clientSocketFactory = m_sslContext.getSocketFactory();
+		m_serverSocketFactory = m_sslContext.getServerSocketFactory(); 
+			}
 
-	// You may find it useful to work from the comment skeleton below.
+	/**
+	 * This constructor will create an SSL server socket factory
+	 * that is initialized with a dynamically generated server certificate
+	 * that contains the specified Distinguished Name.
+	 */
+	public MITMSSLSocketFactory(Principal serverDN, BigInteger serialNumber)
+			throws IOException,GeneralSecurityException, Exception
+			{
+		this();
+		// TODO(cs255): replace this with code to generate a new (forged) server certificate with a DN of serverDN
+		//   and a serial number of serialNumber.
 
-        /*
+		// You may find it useful to work from the comment skeleton below.
+
+		/*
 	final String keyStoreFile = System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
 	final char[] keyStorePassword = System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "").toCharArray();
 	final String keyStoreType = System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
@@ -121,11 +121,11 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	String alias = System.getProperty(JSSEConstants.KEYSTORE_ALIAS_PROPERTY);
 
 	final KeyStore keyStore;
-	
+
 	if (keyStoreFile != null) {
 	    keyStore = KeyStore.getInstance(keyStoreType);
 	    keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
-	    
+
 	    this.ks = keyStore;
 	} else {
 	    keyStore = null;
@@ -146,7 +146,7 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	KeyStore serverKeyStore = KeyStore.getInstance(keyStoreType);
 
 	// . . .
-	
+
 	final KeyManagerFactory keyManagerFactory =
 	    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 	keyManagerFactory.init(serverKeyStore, emptyPassword);
@@ -159,58 +159,58 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	m_clientSocketFactory = // . . .
 	m_serverSocketFactory = // . . .
 
-	*/
-    }
+		 */
+			}
 
-    public final ServerSocket createServerSocket(String localHost,
-						 int localPort,
-						 int timeout)
-	throws IOException
-    {
-	final SSLServerSocket socket =
-	    (SSLServerSocket)m_serverSocketFactory.createServerSocket(
-		localPort, 50, InetAddress.getByName(localHost));
+	public final ServerSocket createServerSocket(String localHost,
+			int localPort,
+			int timeout)
+					throws IOException
+					{
+		final SSLServerSocket socket =
+				(SSLServerSocket)m_serverSocketFactory.createServerSocket(
+						localPort, 50, InetAddress.getByName(localHost));
 
-	socket.setSoTimeout(timeout);
+		socket.setSoTimeout(timeout);
 
-	socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+		socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
 
-	return socket;
-    }
+		return socket;
+					}
 
-    public final Socket createClientSocket(String remoteHost, int remotePort)
-	throws IOException
-    {
-	final SSLSocket socket =
-	    (SSLSocket)m_clientSocketFactory.createSocket(remoteHost,
-							  remotePort);
+	public final Socket createClientSocket(String remoteHost, int remotePort)
+			throws IOException
+			{
+		final SSLSocket socket =
+				(SSLSocket)m_clientSocketFactory.createSocket(remoteHost,
+						remotePort);
 
-	socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
-	
-	socket.startHandshake();
+		socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
 
-	return socket;
-    }
+		socket.startHandshake();
 
-    /**
-     * We're carrying out a MITM attack, we don't care whether the cert
-     * chains are trusted or not ;-)
-     *
-     */
-    private static class TrustEveryone implements javax.net.ssl.X509TrustManager
-    {
-	public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
-				       String authenticationType) {
-	}
-	
-	public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
-				       String authenticationType) {
-	}
+		return socket;
+			}
 
-	public java.security.cert.X509Certificate[] getAcceptedIssuers()
+	/**
+	 * We're carrying out a MITM attack, we don't care whether the cert
+	 * chains are trusted or not ;-)
+	 *
+	 */
+	private static class TrustEveryone implements javax.net.ssl.X509TrustManager
 	{
-	    return null;
+		public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
+				String authenticationType) {
+		}
+
+		public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
+				String authenticationType) {
+		}
+
+		public java.security.cert.X509Certificate[] getAcceptedIssuers()
+		{
+			return null;
+		}
 	}
-    }
 }
-    
+
