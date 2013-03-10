@@ -119,8 +119,7 @@ public class MITMProxyServer
 		System.err.println(startMessage);
 
 		try {
-			m_engine = 
-					new HTTPSProxyEngine(new MITMPlainSocketFactory(),
+			m_engine = new HTTPSProxyEngine(new MITMPlainSocketFactory(),
 							new MITMSSLSocketFactory(),
 							requestFilter,
 							responseFilter,
