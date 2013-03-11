@@ -139,13 +139,13 @@ public class HTTPSProxyEngine extends ProxyEngine
 
 					SSLSocket remoteSocket = null;
 					javax.security.cert.X509Certificate[] serverCertChain = null;
-					X509Certificate serverCertificate = null;
+					iaik.x509.X509Certificate serverCertificate = null;
 					try {
 						//Lookup the "common name" field of the certificate from the remote server:
 						remoteSocket = (SSLSocket) m_proxySSLEngine.getSocketFactory().createClientSocket(remoteHost, remotePort);
 						serverCertChain = remoteSocket.getSession().getPeerCertificateChain();
 						if(serverCertChain.length > 0) {
-							serverCertificate = serverCertChain[0];
+							serverCertificate = new iaik.x509.X509Certificate(serverCertChain[0].getEncoded());
 						}
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
@@ -158,7 +158,7 @@ public class HTTPSProxyEngine extends ProxyEngine
 					//   so that we can copy those values in the certificate that we forge.
 					//   (Recall that we, as a MITM, obtain the server's actual certificate from our own session as a client
 					//    to that server.)
-					Principal serverDN = serverCertificate.getIssuerDN();
+					Principal serverDN = serverCertificate.getSubjectDN();
 					BigInteger serverSerialNumber = serverCertificate.getSerialNumber();
 					System.out.println(serverDN);
 					System.out.println(serverSerialNumber);

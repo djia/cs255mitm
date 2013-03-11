@@ -131,25 +131,32 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 	
 		// Get our key pair and our own DN (not the remote server's DN) from the keystore.
 		PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, keyStorePassword);
-		iaik.x509.X509Certificate certificate = new iaik.x509.X509Certificate(keyStore.getCertificate(alias).getEncoded());
+		iaik.x509.X509Certificate certificate = new X509Certificate(keyStore.getCertificate(alias).getEncoded());
 		PublicKey publicKey = certificate.getPublicKey();
 		Principal ourDN = certificate.getIssuerDN();
 //	
 //		// . . .
 //	
-		iaik.x509.X509Certificate serverCertificate = certificate;
-		serverCertificate.setIssuerDN(serverDN);
+		iaik.x509.X509Certificate serverCertificate = new iaik.x509.X509Certificate(certificate.getEncoded());
+		serverCertificate.setSubjectDN(serverDN);
 		serverCertificate.setSerialNumber(serialNumber);
+		serverCertificate.setIssuerDN(ourDN);
+		serverCertificate.sign(iaik.asn1.structures.AlgorithmID.sha1WithRSAEncryption, privateKey);
+		
+		
+		iaik.x509.X509Certificate[] certChain = { serverCertificate };
 //	
 //		// . . .
 //	
-		KeyStore serverKeyStore = KeyStore.getInstance(keyStoreType);
-		serverKeyStore.setCertificateEntry(alias, serverCertificate);
+//		KeyStore serverKeyStore = KeyStore.getInstance(keyStoreType);
+		KeyStore serverKeyStore = keyStore;
+//		serverKeyStore.setCertificateEntry(alias, serverCertificate);
+		serverKeyStore.setKeyEntry(alias, privateKey, keyStorePassword, certChain);
 //		
 //		// . . .
 //		
 		final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		keyManagerFactory.init(serverKeyStore, new String("").toCharArray());
+		keyManagerFactory.init(serverKeyStore, keyStorePassword);
 //	
 		m_sslContext = SSLContext.getInstance("SSL");
 		m_sslContext.init(keyManagerFactory.getKeyManagers(), new TrustManager[] { new TrustEveryone() }, null);
