@@ -115,6 +115,7 @@ public class MITMAdminCRClient
 	public void run() 
 	{
 		try {
+			// connect to the server
 			SSLContext sslContext = SSLContext.getInstance( "SSL" );
 			sslContext.init(new javax.net.ssl.KeyManager[] {} , new TrustManager[] { new TrustEveryone() } , null);
 			m_remoteSocket = (SSLSocket) sslContext.getSocketFactory().createSocket( remoteHost, remotePort );
@@ -132,14 +133,8 @@ public class MITMAdminCRClient
 				String line = null;
 				String message = null;
 				while ((line = r.readLine()) != null) {
-//					System.out.println(line);
 					message = line;
-//					break;
 				}
-//				System.out.println(message);
-				
-//				System.err.println("Admin Client exited");
-//				System.exit(0);
 				
 
 				// sign the message with the cmd and send it back along with the cmd as plaintext
@@ -147,13 +142,12 @@ public class MITMAdminCRClient
 				String signature = MITMAdminKSUtil.getSignature(keyStore, keyStorePassword, alias, message + command);
 				System.out.println(signature);
 				
-				
 				sslContext = SSLContext.getInstance( "SSL" );
 				sslContext.init(new javax.net.ssl.KeyManager[] {} , new TrustManager[] { new TrustEveryone() } , null);
 				m_remoteSocket = (SSLSocket) sslContext.getSocketFactory().createSocket( remoteHost, remotePort );
 				
 				
-				// send it back
+				// send the signature back to the server along with the command
 				writer = new PrintWriter( m_remoteSocket.getOutputStream() );
 				writer.println("signature:"+signature);
 				writer.println("command:"+command);

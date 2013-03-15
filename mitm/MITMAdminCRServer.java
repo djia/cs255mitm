@@ -47,9 +47,7 @@ class MITMAdminCRServer implements Runnable
 				if(line.isEmpty()) {
 					continue;
 				}
-				System.out.println(line);
-				
-//				this.sendString("I got yo message!");
+//				System.out.println(line);
 				
 				
 				// see what stage of the Challenger Response we are currently at
