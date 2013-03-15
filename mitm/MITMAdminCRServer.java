@@ -43,18 +43,23 @@ class MITMAdminCRServer implements Runnable
 				int bytesRead = in.read(buffer);
 				
 				String line = bytesRead > 0 ? new String(buffer, 0, bytesRead) : "";
-				// if there's nothing read, then move on
+				// if there's nothing t
 				if(line.isEmpty()) {
 					continue;
 				}
+				System.out.println(line);
+				
+//				this.sendString("I got yo message!");
+				
 				
 				// see what stage of the Challenger Response we are currently at
 				if(line.equals("initCR")) {
 					// initializing the CR
 					this.message = String.valueOf(UUID.randomUUID());
 					// send this message to the client for signature
-					this.sendString(this.message);
+					this.sendString(message);
 					// wait for signature to be sent back
+					m_socket.close();
 				} else {
 					// verifying the signature and send response to command if verified
 					

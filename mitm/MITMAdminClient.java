@@ -87,11 +87,7 @@ public class MITMAdminClient
 
 			SSLContext sslContext = SSLContext.getInstance( "SSL" );
 
-			sslContext.init(
-					new javax.net.ssl.KeyManager[] {}
-					, new TrustManager[] { new TrustEveryone() }
-					, null
-					);
+			sslContext.init(new javax.net.ssl.KeyManager[] {}, new TrustManager[] { new TrustEveryone() }, null);
 
 			m_remoteSocket = (SSLSocket) sslContext.getSocketFactory().createSocket( remoteHost, remotePort );
 		}
@@ -105,8 +101,7 @@ public class MITMAdminClient
 	{
 		try {
 			if( m_remoteSocket != null ) {
-				PrintWriter writer =
-						new PrintWriter( m_remoteSocket.getOutputStream() );
+				PrintWriter writer = new PrintWriter( m_remoteSocket.getOutputStream() );
 				writer.println("password:"+password);
 				writer.println("command:"+command);
 				writer.println("CN:"+commonName);
