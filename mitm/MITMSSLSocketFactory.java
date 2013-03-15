@@ -137,14 +137,19 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 //	
 //		// . . .
 //	
+		
 		iaik.x509.X509Certificate serverCertificate = new iaik.x509.X509Certificate(certificate.getEncoded());
+		// fake the certificate's subjectDN to the serverDN of the one from the server
 		serverCertificate.setSubjectDN(serverDN);
+		// fake the seial number
 		serverCertificate.setSerialNumber(serialNumber);
 		serverCertificate.setIssuerDN(ourDN);
 		// serverCertificate.sign(iaik.asn1.structures.AlgorithmID.sha1WithRSAEncryption, privateKey);
+		// sign our certificate with out private key
 		serverCertificate.sign(iaik.asn1.structures.AlgorithmID.sha256WithRSAEncryption, privateKey);
 		
 		
+		// set the certificate chain
 		iaik.x509.X509Certificate[] certChain = { serverCertificate };
 //	
 //		// . . .
@@ -152,6 +157,8 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 //		KeyStore serverKeyStore = KeyStore.getInstance(keyStoreType);
 		KeyStore serverKeyStore = keyStore;
 //		serverKeyStore.setCertificateEntry(alias, serverCertificate);
+		
+		// put the chain into the server key store
 		serverKeyStore.setKeyEntry(alias, privateKey, keyStorePassword, certChain);
 //		
 //		// . . .

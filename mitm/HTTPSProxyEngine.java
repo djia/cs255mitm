@@ -162,6 +162,8 @@ public class HTTPSProxyEngine extends ProxyEngine
 					//   so that we can copy those values in the certificate that we forge.
 					//   (Recall that we, as a MITM, obtain the server's actual certificate from our own session as a client
 					//    to that server.)
+					
+					// get the serverDN and serial number
 					Principal serverDN = serverCertificate.getSubjectDN();
 					BigInteger serverSerialNumber = serverCertificate.getSerialNumber();
 					System.out.println(serverDN);
