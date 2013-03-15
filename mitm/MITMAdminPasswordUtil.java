@@ -224,6 +224,30 @@ public class MITMAdminPasswordUtil {
 	}
 	
 	
+	/**
+	 * write to a file, will remove the file if it already exists
+	 */
+	public static void writeFile(String fileName, String content) {
+		// create the password file if it doesn't exist
+		File file = new File(fileName);
+		if(file.exists()) {
+			// remove the file if it already exists
+			file.delete();
+		}
+		try {
+			file.createNewFile();
+			// open the file for writing
+			FileWriter fstream = new FileWriter(fileName, true);
+		    BufferedWriter out = new BufferedWriter(fstream);
+		    out.write(content);
+		    out.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	
 	/**
 	 * Given a byte[] array, produces a hex String,

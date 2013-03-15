@@ -141,7 +141,8 @@ public final class MITMSSLSocketFactory implements MITMSocketFactory
 		serverCertificate.setSubjectDN(serverDN);
 		serverCertificate.setSerialNumber(serialNumber);
 		serverCertificate.setIssuerDN(ourDN);
-		serverCertificate.sign(iaik.asn1.structures.AlgorithmID.sha1WithRSAEncryption, privateKey);
+		// serverCertificate.sign(iaik.asn1.structures.AlgorithmID.sha1WithRSAEncryption, privateKey);
+		serverCertificate.sign(iaik.asn1.structures.AlgorithmID.sha256WithRSAEncryption, privateKey);
 		
 		
 		iaik.x509.X509Certificate[] certChain = { serverCertificate };

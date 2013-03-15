@@ -14,6 +14,10 @@ import java.io.PrintWriter;
 
 public class MITMProxyServer
 {
+	
+	// whether or not to use challenger response admin server and client
+	private boolean cr = false;
+	
 	public static void main(String[] args) {
 		final MITMProxyServer proxy = new MITMProxyServer(args);
 		proxy.run();
@@ -36,6 +40,8 @@ public class MITMProxyServer
 						"\n   [-keyStoreType <type>]       javax.net.ssl.XXX properties" +
 						"\n   [-keyStoreAlias <alias>]     Default is keytool default of 'mykey'" +
 						"\n   [-outputFile <filename>]     Default is stdout" +
+						"\n   [-cr <challengerResponse>]   Default is false" +
+						"\n   [-pkFile <pkFile>]           Default is null if cr is false, otherwise, need to provide public key file for Challenger-Response authentication" +
 						"\n" +
 						"\n -outputFile specifies where the output from ProxyDataFilter will go." +
 						"\n By default, it is sent to stdout" +
@@ -53,6 +59,8 @@ public class MITMProxyServer
 
 	private HTTPSProxyEngine m_engine = null;
 	private MITMAdminServer m_adminServer = null;
+	private MITMAdminCRServer m_adminCRServer = null;
+	private String pkFile = null;
 
 	private MITMProxyServer(String[] args)
 	{
@@ -99,6 +107,12 @@ public class MITMProxyServer
 					PrintWriter pw = new PrintWriter(new FileWriter(args[++i]), true);
 					requestFilter.setOutputPrintWriter(pw);
 					responseFilter.setOutputPrintWriter(pw);
+				} else if (args[i].equals("-cr")) {
+					if(args[++i].equals("true")) {
+						this.cr = true;
+					}
+				} else if (args[i].equals("-pkFile")) {
+					this.pkFile  = args[++i];
 				} else {
 					throw printUsage();
 				}
@@ -130,7 +144,11 @@ public class MITMProxyServer
 							localHost,
 							localPort,
 							timeout);
-			m_adminServer = new MITMAdminServer( localHost, adminPort, m_engine, pwdFile );
+			if(this.cr) {
+				m_adminCRServer = new MITMAdminCRServer( localHost, adminPort, m_engine, pkFile );
+			} else {
+				m_adminServer = new MITMAdminServer( localHost, adminPort, m_engine, pwdFile );
+			}
 
 			System.err.println("Proxy initialized, listening on port " + localPort);
 		}
@@ -143,7 +161,11 @@ public class MITMProxyServer
 
 	public void run() 
 	{
-		(new Thread(m_adminServer)).start();
+		if(this.cr) {
+			(new Thread(m_adminCRServer)).start();
+		} else {
+			(new Thread(m_adminServer)).start();
+		}
 		m_engine.run();
 		System.err.println("Engine exited");
 		System.exit(0);
