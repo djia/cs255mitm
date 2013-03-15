@@ -62,6 +62,9 @@ public class MITMProxyServer
 		int localPort = 8001;
 		int adminPort = 8002;
 		String localHost = "localhost";
+		
+		// save the password file
+		String pwdFile = null;
 
 		int timeout = 0; 
 		String filename = null;
@@ -88,7 +91,8 @@ public class MITMProxyServer
 				} else if (args[i].equals("-timeout")) {
 					timeout = Integer.parseInt(args[++i]) * 1000;
 				} else if( args[i].equals("-pwdFile")) {
-					i++; // TODO(cs255): parse this as needed
+					pwdFile = args[++i];
+					// i++; // TODO(cs255): parse this as needed
 				} else if (args[i].equals("-adminPort")) {
 					adminPort = Integer.parseInt(args[++i]);
 				} else if (args[i].equals("-outputFile")) {
@@ -126,7 +130,7 @@ public class MITMProxyServer
 							localHost,
 							localPort,
 							timeout);
-			m_adminServer = new MITMAdminServer( localHost, adminPort, m_engine );
+			m_adminServer = new MITMAdminServer( localHost, adminPort, m_engine, pwdFile );
 
 			System.err.println("Proxy initialized, listening on port " + localPort);
 		}

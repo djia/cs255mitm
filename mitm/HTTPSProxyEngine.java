@@ -53,10 +53,13 @@ public class HTTPSProxyEngine extends ProxyEngine
 
 	private String m_tempRemoteHost;
 	private int m_tempRemotePort;
-
+	
+	private int numConnects = 0;
+	
 	private final Pattern m_httpsConnectPattern;
 
 	private final ProxySSLEngine m_proxySSLEngine;
+	
 
 	public HTTPSProxyEngine(MITMPlainSocketFactory plainSocketFactory,
 			MITMSSLSocketFactory sslSocketFactory,
@@ -66,7 +69,7 @@ public class HTTPSProxyEngine extends ProxyEngine
 			int localPort,
 			int timeout)
 					throws IOException, PatternSyntaxException
-					{
+	{
 		// We set this engine up for handling plain HTTP and delegate
 		// to a proxy for HTTPS.
 		super(plainSocketFactory,
@@ -91,15 +94,16 @@ public class HTTPSProxyEngine extends ProxyEngine
 
 		assert sslSocketFactory != null;
 		m_proxySSLEngine = new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter);
-
-					}
-
+	}
+	
+	
 	public void run()
 	{
 		// Should be more than adequate.
 		final byte[] buffer = new byte[40960];
-
+		
 		while (true) {
+			
 			try {
 				//Plaintext Socket with client (i.e. browser)
 				final Socket localSocket = getServerSocket().accept();
@@ -124,7 +128,7 @@ public class HTTPSProxyEngine extends ProxyEngine
 					while (in.read(buffer, 0, in.available()) > 0) {
 					
 					}
-
+					
 					final String remoteHost = httpsConnectMatcher.group(1);
 
 					// Must be a port number by specification.
@@ -194,12 +198,12 @@ public class HTTPSProxyEngine extends ProxyEngine
 					// Send a 200 response to send to client. Client
 					// will now start sending SSL data to localSocket.
 					sendClientResponse(out,"200 OK",remoteHost,remotePort);
+					
+					this.numConnects++;
 				} else { //Not a CONNECT request.. nothing we can do.
-					System.err.println(
-							"Failed to determine proxy destination from message:");
+					System.err.println("Failed to determine proxy destination from message:");
 					System.err.println(line);
-					sendClientResponse(localSocket.getOutputStream(),"501 Not Implemented","localhost",
-							getConnectionDetails().getLocalPort());
+					sendClientResponse(localSocket.getOutputStream(),"501 Not Implemented","localhost", getConnectionDetails().getLocalPort());
 				}
 			}
 			catch (InterruptedIOException e) {
@@ -221,6 +225,10 @@ public class HTTPSProxyEngine extends ProxyEngine
 		response.append("\r\n");
 		out.write(response.toString().getBytes());
 		out.flush();
+	}
+	
+	public int getNumConnects() {
+		return this.numConnects;
 	}
 
 	/*
@@ -272,7 +280,7 @@ public class HTTPSProxyEngine extends ProxyEngine
 
 				System.err.println("New proxy connection to " +
 						m_tempRemoteHost + ":" + m_tempRemotePort);
-
+				
 				this.launchThreadPair(localSocket, remoteSocket,
 						localSocket.getInputStream(),
 						localSocket.getOutputStream(),
